@@ -108,9 +108,5 @@ int main() {
 //    conditiontal test
 //std::cout << is_same_v<int, conditional_t<is_lvalue_ref_t<int&>, int, int&&>> << '\n';
 //std::cout << is_same_v<int&&, conditional_t<is_lvalue_ref_t<int&&>, int, int&&>> << '\n';
-    std::vector v{1,2,3,4,5,6};
-    auto cr = create_from_indexes<std::vector<int>,1,2,3,5>(v);
-    for(const auto& elem : cr)
-        std::cout << elem << " ";
  return 0;
 }
