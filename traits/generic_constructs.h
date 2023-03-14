@@ -1,6 +1,7 @@
 #ifndef IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H
 #define IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H
 
+//should be in traits??
 namespace impl::traits{
 
     template <typename Type, Type val>
@@ -30,12 +31,16 @@ namespace impl::traits{
     template <bool Predicate, typename TrueType, typename FalseType>
     using conditional_t = typename conditional<Predicate, TrueType, FalseType>::type;
 
-    template<typename Container, size_t... Ind>
-    Container create_from_indexes(const Container& from){
-        Container created{};
-        (created.emplace_back(from[Ind]),... );
-        return created;
-    }
+    template <bool Predicate, typename Type>
+    struct enable_if{};
+
+    template<typename Type>
+    struct enable_if<true, Type>{
+        using type = Type;
+    };
+
+    template<bool Predicate, typename Type>
+    using enable_if_t = typename enable_if<Predicate, Type>::type;
 
 }
 #endif //IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H

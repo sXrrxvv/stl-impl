@@ -1,3 +1,6 @@
+#ifndef IMPLEMENTING_STL_SFINAE_TRAITS_H
+#define IMPLEMENTING_STL_SFINAE_TRAITS_H
+
 #include "generic_constructs.h"
 #include "../utility/utility.h"
 
@@ -13,7 +16,7 @@ namespace impl::traits{
     template < typename T>
     inline constexpr bool has_size_type_v = has_size_type<T>::value;
 
-    template<typename T, typename = void_t<T>> //has_first<void, void>
+    template<typename T, typename = void_t<T>>
     struct has_first : false_type {};
 
     template<typename T>
@@ -54,3 +57,4 @@ namespace impl::traits{
     inline constexpr bool is_convertible_v = is_convertible<To>::template is_convertible_helper<From>::value;
 
 }
+#endif //IMPLEMENTING_STL_SFINAE_TRAITS_H

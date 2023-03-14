@@ -8,6 +8,7 @@
 #include "tests/test_objects.h"
 #include "utility/utility.h"
 
+
 using namespace impl::traits;
 
 template <typename... Args>
@@ -81,7 +82,7 @@ int main() {
 //    has_first test
 
 //    std::cout << has_first_v<std::pair<int,int>> << '\n';
-//    std::cout << has_first_v<noDefCtorWithMember> << '\n';
+//    std::cout << has_first_v<noDefCtorWithMemberFirst> << '\n';
 //    std::cout << has_first_v<std::vector<int>> << '\n';
 
 
@@ -95,7 +96,7 @@ int main() {
     //is_default_constructable test
 //    std::cout << is_default_constructable_v<int> << '\n';
 //    std::cout << is_default_constructable_v<int&> << '\n';
-//    std::cout << is_default_constructable_v<noDefCtor> << '\n';
+//    std::cout << is_default_constructable_v<impl::test::noDefCtor> << '\n';
 
 
 //      is_convertible test
@@ -103,11 +104,25 @@ int main() {
 //    std::cout << is_convertible_v<int, long> << '\n';
 //    std::cout << is_convertible_v<int, noDefCtor> << '\n';
 //    std::cout << is_convertible_v<const int&, int> << '\n';
-//    std::cout << is_convertible_v<noDefCtor, noDefCtorWithMember> << '\n';
+//    std::cout << is_convertible_v<noDefCtor, noDefCtorWithMemberFirst> << '\n';
 
 //    conditiontal test
 //std::cout << is_same_v<int, conditional_t<is_lvalue_ref_t<int&>, int, int&&>> << '\n';
 //std::cout << is_same_v<int&&, conditional_t<is_lvalue_ref_t<int&&>, int, int&&>> << '\n';
-//abcde
+
+//create_from_index test
+//    std::vector v{1,2,3,4,5};
+//    for(const auto& elem : create_from_indexes<int, 1,2,3,4,0>(v)){
+//        std::cout << elem << '\n';
+//    }
+
+//enable_if test
+//    impl::test::enable_if_test::test<std::vector<int>>();
+//    impl::test::enable_if_test::test<int>();
+//    impl::test::substitution_failure_without_size_type<std::vector<int>> works;
+//    impl::test::substitution_failure_without_size_type<int> failure;
+
+
+
  return 0;
 }
