@@ -1,8 +1,7 @@
-#ifndef IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H
-#define IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H
+#ifndef IMPLEMENTING_STL_TYPE_CONSTRUCTS_H
+#define IMPLEMENTING_STL_TYPE_CONSTRUCTS_H
 
-//should be in traits??
-namespace impl::traits{
+namespace impl::generic{
 
     template <typename Type, Type val>
     struct integral_constant{
@@ -14,6 +13,15 @@ namespace impl::traits{
     struct true_type : integral_constant<bool, true>{};
 
     struct false_type : integral_constant<bool, false>{};
+
+    template <typename Type, Type... val>
+    struct value_sequence {};
+
+    template <int... val>
+    using integer_sequence = value_sequence<int, val...>;
+
+    template <size_t... val>
+    using index_sequence = integer_sequence<val...>;
 
     template <bool Predicate, typename TrueType, typename FalseType>
     struct conditional{};
@@ -43,4 +51,4 @@ namespace impl::traits{
     using enable_if_t = typename enable_if<Predicate, Type>::type;
 
 }
-#endif //IMPLEMENTING_STL_GENERIC_CONSTRUCTS_H
+#endif //IMPLEMENTING_STL_TYPE_CONSTRUCTS_H

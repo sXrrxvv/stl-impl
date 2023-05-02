@@ -1,7 +1,7 @@
 #ifndef IMPLEMENTING_STL_QUALIFIERS_TRAITS_H
 #define IMPLEMENTING_STL_QUALIFIERS_TRAITS_H
 
-#include "generic_constructs.h"
+#include "../generic_constructs/type_constructs.h"
 
 namespace impl::traits{
     template<typename T>
@@ -123,19 +123,19 @@ namespace impl::traits{
     using decay_t = typename decay<T>::type;
 
     template <typename T>
-    struct is_lvalue_ref : false_type{};
+    struct is_lvalue_ref : generic::false_type{};
 
     template <typename T>
-    struct is_lvalue_ref<T&> : true_type{};
+    struct is_lvalue_ref<T&> : generic::true_type{};
 
     template <typename T>
     inline constexpr bool is_lvalue_ref_t = is_lvalue_ref<T>::value;
 
     template <typename T>
-    struct is_rvalue_ref : false_type{};
+    struct is_rvalue_ref : generic::false_type{};
 
     template <typename T>
-    struct is_rvalue_ref<T&&> : true_type{};
+    struct is_rvalue_ref<T&&> : generic::true_type{};
 
     template <typename T>
     inline constexpr bool is_rvalue_ref_v = is_rvalue_ref<T>::value;
