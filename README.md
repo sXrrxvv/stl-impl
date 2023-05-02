@@ -1,1 +1,1 @@
-my c++ repository for studing
+study c++ repo
