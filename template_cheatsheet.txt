@@ -1,0 +1,164 @@
+sfinae linked with instantiation very close, we need to understand does out substitution produce non-immediate context errors.
+
+
+consider this example:
+
+    template <int n>
+    struct Danger{
+        int ar[n];
+    };
+
+    template <int n, typename = int[n]>
+    void f(){
+        std::cout << 1;
+    };
+
+    template <int n>
+    void f(){
+        std::cout << 2;
+    }
+
+    int main(){
+        f< -1>();
+    }
+
+here we call f< -1>, now compiler should perform overload resolution : which version of f templated choose
+when he tries to instantiate f< -1> for first version, the default template param is ill-formed negative size array, which is in immediate context of the function, so we get soft error
+and this code compiles with 2 in result.
+
+If we change default template arg this way, this code no longer compiles
+
+    template <int n, typename = decltype(Danger<n>())>
+    void f(){
+        std::cout << 1;
+    };
+
+Here we force compile to instantiate Danger<-1> by calling it's constructor (i think that it needs to know what size of stack should be allocated, so it must instantiate template)
+So, error no longer in immediate context of f, it's in Danger<N> struct, and we get hard error.
+
+if we change this code to
+
+    template <int n, typename = Danger<n>>
+    void f(){
+        std::cout << 1;
+    };
+
+it will compile
+
+
+Consider this example:
+
+    template <typename T>
+    void f(T val, std::enable_if_t<std::is_copy_assignable_v<T>, int> num = 0) { std::cout << 1;}
+
+    template <typename T>
+    void f(T val) {std::cout << 2;}
+
+    template <typename T>
+    struct Danger{
+        using type = typename T::type;
+    };
+
+    template <typename T, typename U = Danger<T>>
+    void g(T val,  U val2 = U()){
+        std::cout << 1;
+
+    };
+
+    template <typename T>
+    void g(T val){
+        std::cout << 2;
+    }
+
+    int main(){
+        f(std::make_unique<int>(5));
+        g(5);
+    }
+
+Function call for f works fine:
+    it tries to substitute types, when he will get error in enable_if_t alias it simply remove this version from the overload set.
+
+Function call for g, otherwise:
+    Both clang++ and g++ say that this is ambiguous call, even taking in account that default argument in first template forces Danger<int> to be instantiated, as well as alias in it
+    So, correctness of default argument in this case is checked after the overload resolution. We end up with hard error in any cases by the way, because error in instantiation of argument
+    isn't in immediate context.
+
+From this we can notice that if default argument type is template param, it instantiates it after overload resolution. If not, it will instantiate it before overload resolution
+Also from the first call we notice that we can get substitution failure in arguments params set.
+
+
+When we use something in template args, compiler won't generate definition for it until we use it in a way which must instantiate template,
+it treats them as usual incomplete types.
+
+//!!! sfinae error applies in immediate context of deduction process (for functions, don't find this kind of info for class templates)  :
+
+    // the definition of a class template (i.e., its “body” and list of base classes),
+    //• the definition of a function template (“body” and, in the case of a constructor, its constructor-initializers),
+    //• the initializer of a variable template,
+    //• a default argument,
+    //• a default member initializer, or
+    //• an exception specification
+    // are not the part of the context, so you cannot disable functions with mistakes in this places. Conversely, it will
+    //generate hard errors.
+
+    when we instantiate alias template during substitution and it is ill formed, it's considered as immediate context error
+
+
+//UPD! Close, but not true. We don't rely on deduction, because alias templates considered as immediate context.
+proper way to disable function template with enable_if:
+this works this way :
+    1) At first, we use this function like f(val), so we don't explicitly set second template param, therefore, it tries to create it from enable_if
+    2) When it comes to enable_if_t, which is equivalent to enable_if<pred, Type>::type, the class template partial specialization kicks in :
+            primary version of enable_if has false in predicate and doesn't have type alias
+            specialization with predicate = true has type alias, which is second template arg of enable_if (void by default)
+        So, now compiler must decide what version of class template should be instantiated. It replaces predicate expression to is_default_constructive_v
+     and tries to instantiate enable_if template with it. Thus, we force compiler to choose between specializations and this means that we make artificial deduction inside f call.
+    3) If T is not default constructible, alias enable_if_t, when instantiated, produce error, but using type member when we don't have type member is immediate context error,
+    so we get soft error, which we want.
+
+
+    //template <typename T, typename = std::enable_if_t<std::is_default_constructible_v<T>> >
+    //void f(T&& val){
+    //    std::cout << 1 << '\n';
+    //};
+    //
+    //
+    //void f(std::unique_ptr<int>& val){
+    //    std::cout << 2 << '\n';
+    //};
+
+or with usual sfinae
+
+    //template <typename T, typename = decltype(T())>
+    //void f(T&& val){
+    //    std::cout << 1 << '\n';
+    //};
+    //
+    //void f(std::unique_ptr<int>& val){
+    //    std::cout << 2;
+    //}
+
+In this way we disable class specializations.
+
+    template <typename T, typename = void>
+    struct f{
+        inline static int val = 1;
+    };
+
+    template <typename T>
+    struct f<T, std::enable_if_t<traits::has_size_type_v<T>>>{
+        inline static int val = 2;
+    };
+
+
+Note that we can't disable like this
+
+    template <typename T, typename = std::enable_if_t<traits::has_size_type_v<T>>>
+    struct f{};
+
+    template <typename T>
+    struct f<T, void>{};
+
+Deduction and substitution also occur while determining whether a specialization of a class or variable (since C++14)
+template is generated by some partial specialization or the primary template. In this case, no such overload resolution even performed, because, for example f<int>
+can't bind to primary template.
