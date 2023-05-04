@@ -15,6 +15,8 @@ namespace impl::generic {
 
         virtual ReturnType invoke(Args... args) const = 0;
 
+        virtual function_base* clone() const = 0;
+
     };
 
 
@@ -28,12 +30,14 @@ namespace impl::generic {
             return functor(impl::forward<Args>(args)...);
         }
 
-        ~function_erasure() override = default;
+        function_erasure* clone() const override{
+            return new function_erasure(functor);
+        }
 
     public:
 
         template <typename Functor_>
-        function_erasure (Functor_&& functor_) : functor{functor_} {};
+        function_erasure (Functor_&& functor_) : functor{forward<Functor_>(functor_)} {};
 
     };
 
@@ -52,7 +56,18 @@ namespace impl::generic {
         function() : func{nullptr} {};
 
         template <typename Functor>
-        function(Functor&& functor) : func{new function_erasure<traits::decay_t<Functor>, ReturnType, ArgsType...>{functor}} {};
+        function(Functor&& functor) : func{new function_erasure<traits::decay_t<Functor>, ReturnType, ArgsType...>
+                {impl::forward<Functor>(functor)}} {};
+
+        function(const function& rhs) : func{nullptr} {
+            if(rhs.func != nullptr) {
+                func = rhs.func->clone();
+            }
+        };
+
+        function(function&& rhs) noexcept : func{rhs.func} {
+            rhs.func = nullptr;
+        }
 
         template<typename Functor>
         function& operator = (Functor&& functor){
@@ -62,14 +77,19 @@ namespace impl::generic {
             return *this;
         }
 
+        function& operator = (function&& rhs) noexcept{
+            delete func;
+            func = rhs.func;
+            rhs.func = nullptr;
+            return *this;
+        }
+
         ReturnType operator()(ArgsType... args) const{
             func->invoke(impl::forward<ArgsType>(args)...);
         }
 
         friend void swap(function& f1, function& f2){
-            auto tmp = f1.func;
-            f1.func = f2.func;
-            f2.func = tmp;
+            impl::swap(f1, f2);
         }
     };
     

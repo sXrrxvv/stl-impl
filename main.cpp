@@ -50,7 +50,6 @@ int main() {
 
     func = l3;
     func(10, 10);
-
 //    TODO : need to investigate google unit for experience, or, at least change all to static_assert for practical use
 //    Qualifiers generic tests
 //    _____________________________________________________________________________________________________________________

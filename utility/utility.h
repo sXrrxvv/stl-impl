@@ -35,6 +35,13 @@ namespace impl {
         return static_cast<T&&>(val);
     }
 
+    template <typename T>
+    void swap(T& first, T& second){
+        T tmp{move(first)};
+        first = move(second);
+        second = move(tmp);
+    }
+
 //   //interesting example : suppose we explicitly call this with T substituted with some ref type (either lvalue ref or rvalue ref)
 //   //const will be applied to T, and T is ref, so const does nothing. For example : T -> int&, so we get (const (int&))&& == int&
 //  my question :
