@@ -3,8 +3,20 @@
 
 #include "../utility/utility.h"
 #include "../traits/sfinae_traits.h"
+#include "../traits/non_sfinae_check_traits.h"
+
+//TODO : bind
 
 namespace impl::generic {
+
+    //for future bind func
+    template <size_t N>
+    struct placeholder{};
+
+    constexpr placeholder<1> _1;
+    constexpr placeholder<2> _2;
+    constexpr placeholder<3> _3;
+
 
     template <typename ReturnType, typename... Args>
     class function_base{
@@ -55,7 +67,8 @@ namespace impl::generic {
 
         function() : func{nullptr} {};
 
-        template <typename Functor>
+        template <typename Functor,
+                typename = enable_if_t<!traits::is_same_v<traits::decay_t<Functor>, function>, void>>
         function(Functor&& functor) : func{new function_erasure<traits::decay_t<Functor>, ReturnType, ArgsType...>
                 {impl::forward<Functor>(functor)}} {};
 
@@ -95,4 +108,4 @@ namespace impl::generic {
     
 }
 
-#endif
+#endif //IMPLEMENTING_STL_FUNCTION_H

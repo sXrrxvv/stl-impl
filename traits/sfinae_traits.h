@@ -4,6 +4,8 @@
 #include "../generic_constructs/type_constructs.h"
 #include "../utility/utility.h"
 
+//TODO : try to implement sfinae with macros
+
 namespace impl::traits{
 
     template<typename T, typename = void_t<T>>

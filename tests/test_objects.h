@@ -55,7 +55,7 @@ namespace impl::test{
     };
 
     template <typename T>
-    class CRTP_test : public generic::objectCounter<CRTP_test<T>>{};
+    class CRTP_test : public generic::object_counter<CRTP_test<T>>{};
 
     class equality_comparable_test : public equality_comparable<equality_comparable_test>{
         friend bool operator !=(const equality_comparable_test& lhs, const equality_comparable_test& rhs){

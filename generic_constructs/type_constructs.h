@@ -50,5 +50,15 @@ namespace impl::generic{
     template<bool Predicate, typename Type>
     using enable_if_t = typename enable_if<Predicate, Type>::type;
 
+
+    //Interesting: T[N] is decayed to T* when it is function parameter, but no decay when it is template param,
+    //so we must accept ref to array, funny
+    //maybe stl version is variadic, so we can specialize for containers with size member via sfinae specialization
+    // like decltype(declval<Container>().size) or with enable_if_t<has_size_member_v<Container>, void>
+    template <typename T, std::size_t N>
+    constexpr std::size_t size(T(&)[N]) {
+        return N;
+    }
+
 }
 #endif //IMPLEMENTING_STL_TYPE_CONSTRUCTS_H

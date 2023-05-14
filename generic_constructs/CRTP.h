@@ -3,24 +3,25 @@
 
 //we can customize behaviour to the derived class via specialization
 
+//TODO: add enable_share_from_this when shared_ptr is ready
 namespace impl::generic {
     template<typename Derived>
-    class objectCounter {
+    class object_counter {
     private:
         inline static unsigned int count = 0;
 
     protected:
-        objectCounter() {
+        object_counter() {
             ++count;
         }
 
-        objectCounter(const objectCounter &) {
+        object_counter(const object_counter &) {
             ++count;
         }
 
-        objectCounter(objectCounter &&) noexcept = default;
+        object_counter(object_counter &&) noexcept = default;
 
-        ~objectCounter() {
+        ~object_counter() {
             --count;
         }
 

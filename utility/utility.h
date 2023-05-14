@@ -42,6 +42,7 @@ namespace impl {
         second = move(tmp);
     }
 
+    // not so smart from me btw
 //   //interesting example : suppose we explicitly call this with T substituted with some ref type (either lvalue ref or rvalue ref)
 //   //const will be applied to T, and T is ref, so const does nothing. For example : T -> int&, so we get (const (int&))&& == int&
 //  my question :
@@ -51,6 +52,7 @@ namespace impl {
 //    const T&& interesting_const_example();
 
 
+//just fold expr test
     template<typename Out, typename In, size_t... Ind>
     Out create_from_indexes(const In &from, generic::index_sequence<Ind...> indexes) {
         Out created{};

@@ -1,8 +1,6 @@
 #include <iostream>
-#include <vector>
-#include <list>
-#include <functional>
-#include <any>
+
+//TODO: rewrite headers in one order for precompiled headers
 
 #include "generic_constructs/type_constructs.h"
 #include "traits/qualifiers_traits.h"
@@ -13,44 +11,56 @@
 #include "generic_constructs/CRTP.h"
 #include "tests/test_objects.h"
 #include "generic_constructs/function.h"
+#include "generic_constructs/tuple.h"
+
+//TODO: Variant, u_map, deque, pull allocator, shared/weak ptrs.
 
 using namespace impl;
 
-void foo(double x, int i){
-    std::cout << x << " " << i << '\n';
-}
-
-class s {
-public:
-    void foo(double x, int y) {
-        std::cout << x << " " << y << '\n';
-    };
-};
-
-
 int main() {
 
-    generic::function<void(double, int)> func{&foo};
+    generic::tuple<int, double> t1{5, 3.0};
+    generic::tuple<int, double> t2 = move(t1);
+    t1 = t2;
+    std::cout << t2.val;
 
-    func(1,2+3);
+    //    TODO : need to investigate google unit for experience, or, at least change all to static_assert for practical use, or just include in test_objects.h
+    //
+//    generic::tuple<std::string, std::string, std::string> t = {"abc", "bcd", "cde"};
+//    std::cout << sizeof(t);
+//
+//    std::string str{"abc"};
+//    std::tuple<std::string> t1;
+//    std::tuple<char> t2{'1'};
+//    t1 = t2;
 
-    auto l1 = [](double x, int y){std::cout << x+y << '\n';};
+//    std::cout << sizeof(std::string) << '\n';
+//    std::cout << sizeof(std::tuple<std::string, std::string, std::string>);
+//    generic::function<void(double, int)> func{&foo};
+//
+//    func(1,2+3);
+//
+//    auto l1 = [](double x, int y){std::cout << x+y << '\n';};
+//
+//    func = l1;
+//
+//    func(1, 5);
+//
+//    int x = 10;
+//    auto l2 = [&a = x](double b, int y){std::cout << a + b + y << '\n';};
+//
+//    func = l2;
+//    func(10, 10);
+//
+//    auto l3 = [](int a, int b){};
+//
+//    func = l3;
+//    func(10, 10);
 
-    func = l1;
 
-    func(1, 5);
-
-    int x = 10;
-    auto l2 = [&a = x](double b, int y){std::cout << a + b + y << '\n';};
-
-    func = l2;
-    func(10, 10);
-
-    auto l3 = [](int a, int b){};
-
-    func = l3;
-    func(10, 10);
-//    TODO : need to investigate google unit for experience, or, at least change all to static_assert for practical use
+        //size_test
+//      int ar[10];
+//      std::cout << generic::size(ar);
 //    Qualifiers generic tests
 //    _____________________________________________________________________________________________________________________
 //
