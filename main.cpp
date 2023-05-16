@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <array>
 
 //TODO: rewrite headers in one order for precompiled headers
 
@@ -57,6 +58,8 @@ int main() {
     auto t2 = move(t);
     std::cout << t2.get_head().get_val().val << '\n';
     std::cout << t.get_head().get_val().val << '\n';
+    generic::get<0>(t2).val = 50;
+    std::cout << generic::get<0>(t2).val;
 //    struct : std::vector<int> {} x;
 //
 //    generic::tuple<int, double> t1{5, 3.0};

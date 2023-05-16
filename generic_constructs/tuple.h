@@ -104,18 +104,29 @@ namespace impl::generic {
             return *this;
         }
 
-        friend void swap(tuple& first, tuple& second) {
+        friend constexpr void swap(tuple& first, tuple& second) {
             tuple tmp{move(first)};
             first = move(second);
             second = move(tmp);
         }
+
+        template <unsigned N, typename... Types>
+        friend constexpr decltype(auto) get(tuple<Types...>& t);
+
     };
 
     template <>
     class tuple<>{};
 
+    template <unsigned int N, typename T>
+    constexpr T& get_elem(tuple_elem<N, T>& elem){
+        return elem.get_val();
+    }
 
-
+    template <unsigned int N, typename... Types>
+    constexpr decltype(auto) get(tuple<Types...>& t){
+        return get_elem<sizeof...(Types) - N - 1>(t);
+    }
 }
 
 
