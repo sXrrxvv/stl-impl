@@ -58,7 +58,7 @@ namespace impl::traits{
     template <typename From, typename To>
     inline constexpr bool is_convertible_v = is_convertible<To>::template is_convertible_helper<From>::value;
 
-    template <typename T, typename = void_t<>>
+    template <typename T, typename = void>
     struct is_class : generic::false_type{};
 
     template <typename T>
@@ -66,6 +66,5 @@ namespace impl::traits{
 
     template <typename T>
     inline constexpr bool is_class_v = is_class<T>::value;
-
 }
 #endif //IMPLEMENTING_STL_SFINAE_TRAITS_H

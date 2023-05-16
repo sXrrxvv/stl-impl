@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 //TODO: rewrite headers in one order for precompiled headers
 
@@ -17,12 +18,51 @@
 
 using namespace impl;
 
+struct A{
+    int val;
+
+    A() = default;
+
+    A(const int& val) {
+        this->val = val;
+    }
+
+    A(const A& rhs){
+        val = rhs.val;
+    }
+
+    A(A&& rhs){
+        val = rhs.val;
+        rhs.val = 0;
+    }
+
+    A& operator = (const A& rhs)= default;
+
+    A& operator = (A&& rhs) noexcept{
+        val = rhs.val;
+        rhs.val = 0;
+        return *this;
+    }
+
+    A(int&& val) noexcept{
+        this->val = val;
+        val = 0;
+    }
+};
+
+
 int main() {
 
-    generic::tuple<int, double> t1{5, 3.0};
-    generic::tuple<int, double> t2 = move(t1);
-    t1 = t2;
-    std::cout << t2.val;
+    generic::tuple <A, double> t{A(10), 2.0};
+    auto t2 = move(t);
+    std::cout << t2.get_head().get_val().val << '\n';
+    std::cout << t.get_head().get_val().val << '\n';
+//    struct : std::vector<int> {} x;
+//
+//    generic::tuple<int, double> t1{5, 3.0};
+//    generic::tuple<int, double> t2 = move(t1);
+//    t1 = t2;
+//    std::cout << t2.val;
 
     //    TODO : need to investigate google unit for experience, or, at least change all to static_assert for practical use, or just include in test_objects.h
     //

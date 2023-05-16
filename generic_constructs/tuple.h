@@ -1,74 +1,121 @@
 #ifndef IMPLEMENTING_STL_TUPLE_H
 #define IMPLEMENTING_STL_TUPLE_H
 
-//TODO : get<N>, make_tuple and tie
+//TODO : get<N>,make_tuple and tie
 
 namespace impl::generic {
+
+    template <unsigned int Index, typename T,
+            bool can_inherit_from = traits::is_class_v<T> && !std::is_final_v<T>> //is_final implemented via compiler support
+    class tuple_elem;
+
+    template <unsigned int Index, typename T>
+    class tuple_elem<Index, T, false>{
+
+    private:
+        T val;
+
+    public:
+
+        tuple_elem(const T& val) : val(val) {};
+
+        tuple_elem(T&& val) noexcept : val(move(val)) {};
+
+        T& get_val() &{
+            return val;
+        }
+
+        const T& get_val() const &{
+            return val;
+        }
+    };
+
+    template <unsigned int Index, typename T>
+    class tuple_elem<Index, T, true> : private T{
+    public:
+
+        tuple_elem(const T& val){
+            static_cast<T&>(*this) = val;
+        };
+
+        tuple_elem(T&& val) noexcept {
+            static_cast<T&>(*this) = move(val);
+        };
+
+        T& get_val() &{
+            return *this;
+        }
+
+        const T& get_val() const &{
+            return *this;
+        }
+    };
 
     template <typename... Types>
     class tuple;
 
+    template <typename FirstType, typename...  OtherTypes>
+    class tuple<FirstType, OtherTypes...> : private tuple_elem<sizeof...(OtherTypes), FirstType>, tuple<OtherTypes...>{
 
-    //bad tuple design, because of recursive inheritance. Need to rewrite it in future
-    template<typename FirstType, typename... OtherTypes>
-    class tuple<FirstType, OtherTypes...> : private tuple<OtherTypes...> {
-
+        //make private after tests
     public:
-        FirstType val;
 
-        tuple<OtherTypes...>& get_tail() {
-            return static_cast<tuple<OtherTypes...>&>(*this);
+        using tail = tuple<OtherTypes...>;
+        using head = tuple_elem<sizeof...(OtherTypes), FirstType>;
+
+        tail& get_tail(){
+            return *this;
         }
 
-        const tuple<OtherTypes...>& get_tail() const {
-            return static_cast<const tuple<OtherTypes...>&>(*this);
+        const tail& get_tail() const{
+            return *this;
+        }
+
+        head& get_head(){
+            return *this;
+        }
+
+        const head& get_head() const{
+            return *this;
         }
 
     public:
 
         tuple() = default;
 
-        //need to disable when we're constructing from existing tuple, because Fwd c-tor can be a better match than copy/move
+        tuple(const tuple& rhs) : head(rhs.get_head()), tail(rhs.get_tail()) {};
+
+        tuple(tuple&& rhs) noexcept : head(move(rhs.get_head())), tail(move(rhs.get_tail())) {};
+
         template <typename FwdFirstType, typename... FwdOtherTypes,
-                typename = enable_if_t<sizeof...(FwdOtherTypes) == sizeof...(OtherTypes), void>>
-        tuple(FwdFirstType&& first_val, FwdOtherTypes&&... other_types) : val{forward<FwdFirstType>(first_val)},
-                tuple<OtherTypes...>{forward<FwdOtherTypes>(other_types)...} {};
+                typename = enable_if_t<sizeof...(OtherTypes) == sizeof...(FwdOtherTypes), void>>
+        tuple(FwdFirstType&& first, FwdOtherTypes&&... other) :
+        head(forward<FwdFirstType>(first)), tail(forward<FwdOtherTypes>(other)...) {};
 
-        tuple(const tuple& rhs) : val(rhs.val), tuple<OtherTypes...>(rhs.get_tail()) {};
-
-        tuple(tuple&& rhs) noexcept : val(move(rhs.val)), tuple<OtherTypes...>(move(rhs.get_tail())) {};
+        tuple& operator = (tuple&& rhs) noexcept{
+            this->get_head() = move(rhs.get_head());
+            this->get_tail() = move(rhs.get_tail());
+            return *this;
+        }
 
         tuple& operator = (const tuple& rhs){
-            tuple tmp(rhs);
+            tuple tmp{rhs};
             swap(*this, tmp);
             return *this;
         }
 
-        tuple& operator = (tuple&& rhs) noexcept{
-            val = move(rhs.val);
-            static_cast<tuple<OtherTypes...>&>(*this) = move(rhs.get_tail());
-            return *this;
+        friend void swap(tuple& first, tuple& second) {
+            tuple tmp{move(first)};
+            first = move(second);
+            second = move(tmp);
         }
-
-        friend constexpr void swap(tuple& lhs, tuple& rhs){
-            tuple tmp = move(lhs);
-            lhs = move(rhs);
-            rhs = move(tmp);
-        }
-
-//        friend constexpr bool operator ==(const tuple& lhs, const tuple& rhs){
-//
-//        }
-
     };
 
     template <>
     class tuple<>{};
 
-    template <typename FirstType, typename... OtherTypes>
-    constexpr void print_tuple(const tuple<FirstType, OtherTypes...>& t){
 
-    }
+
 }
 
 
