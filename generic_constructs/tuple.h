@@ -127,6 +127,11 @@ namespace impl::generic {
     constexpr decltype(auto) get(tuple<Types...>& t){
         return get_elem<sizeof...(Types) - N - 1>(t);
     }
+
+    template <typename T, typename... Types>
+    constexpr decltype(auto) get(tuple<Types...>& t){
+
+    }
 }
 
 

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <array>
 
 //TODO: rewrite headers in one order for precompiled headers
 
@@ -14,53 +12,57 @@
 #include "tests/test_objects.h"
 #include "generic_constructs/function.h"
 #include "generic_constructs/tuple.h"
+#include "memory/unique_ptr.h"
 
 //TODO: Variant, u_map, deque, pull allocator, shared/weak ptrs.
 
 using namespace impl;
 
-struct A{
-    int val;
-
-    A() = default;
-
-    A(const int& val) {
-        this->val = val;
-    }
-
-    A(const A& rhs){
-        val = rhs.val;
-    }
-
-    A(A&& rhs){
-        val = rhs.val;
-        rhs.val = 0;
-    }
-
-    A& operator = (const A& rhs)= default;
-
-    A& operator = (A&& rhs) noexcept{
-        val = rhs.val;
-        rhs.val = 0;
-        return *this;
-    }
-
-    A(int&& val) noexcept{
-        this->val = val;
-        val = 0;
-    }
-};
+//struct A{
+//    int val;
+//
+//    A() = default;
+//
+//    A(const int& val) {
+//        this->val = val;
+//    }
+//
+//    A(const A& rhs){
+//        val = rhs.val;
+//    }
+//
+//    A(A&& rhs){
+//        val = rhs.val;
+//        rhs.val = 0;
+//    }
+//
+//    A& operator = (const A& rhs)= default;
+//
+//    A& operator = (A&& rhs) noexcept{
+//        val = rhs.val;
+//        rhs.val = 0;
+//        return *this;
+//    }
+//
+//    A(int&& val) noexcept{
+//        this->val = val;
+//        val = 0;
+//    }
+//};
 
 
 int main() {
 
-    generic::tuple <A, double> t{A(10), 2.0};
-    auto t2 = move(t);
-    std::cout << t2.get_head().get_val().val << '\n';
-    std::cout << t.get_head().get_val().val << '\n';
-    generic::get<0>(t2).val = 50;
-    std::cout << generic::get<0>(t2).val;
-//    struct : std::vector<int> {} x;
+//    memory::unique_ptr<int> u_ptr = new int(5);
+//
+//    std::cout << *u_ptr;
+
+//    generic::tuple <A, double> t{A(10), 2.0};
+//    auto t2 = move(t);
+//    std::cout << t2.get_head().get_val().val << '\n';
+//    std::cout << t.get_head().get_val().val << '\n';
+//    generic::get<0>(t2).val = 50;
+//    std::cout << generic::get<0>(t2).val;
 //
 //    generic::tuple<int, double> t1{5, 3.0};
 //    generic::tuple<int, double> t2 = move(t1);
